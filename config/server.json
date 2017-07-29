@@ -1,0 +1,60 @@
+{
+	"rust_server": {
+		"host": "rust-server-ip-or-hostname",
+		"webrcon_port": 5678,
+		"webrcon_password": "your-rcon-password",
+		"reconnect_interval": 5
+	},
+	"slack": {
+		"reconnect_interval": 5,
+		"bot": {
+			"api_token": "slack-bot-api-token",
+			"name": "RustCommander"
+		},
+		"interactions": [
+			{
+				"channel": "#rustserver_swearing",
+				"type": "chat-notification",
+				"filters": ["noob", "damn it", "god damn", "ass"]
+			},
+			{
+				"channel": "#rustserver_admin",
+				"type": "chat-notification",
+				"filters": ["admin", "cheater"]
+			},
+			{
+				"channel": "#rustserver_chat",
+				"type": "chat"
+			},
+			{
+				"channel": "#rustserver_console",
+				"type": "console"
+		  }
+		]
+	},
+	"discord": {
+		"bot": {
+			"api_token": "discord-bot-api-token"
+		},
+		"interactions": [
+			{
+				"channel": "#rustserver_swearing",
+				"type": "chat-notification",
+				"filters": ["noob", "damn it", "god damn", "ass"]
+			},
+			{
+				"channel": "#rustserver_admin",
+				"type": "chat-notification",
+				"filters": ["admin", "cheater"]
+			},
+			{
+				"channel": "#rustserver_chat",
+				"type": "chat"
+			},
+			{
+				"channel": "#rustserver_console",
+				"type": "console"
+		  }
+		]
+	}
+}
