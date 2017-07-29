@@ -5,8 +5,6 @@ const plugin = {
   version: '1.0',
   run(rustCommander) {
 
-    console.log('test');
-
   }
 }
 

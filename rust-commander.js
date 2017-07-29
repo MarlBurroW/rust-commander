@@ -1,4 +1,3 @@
-// Internal Modules
 const Logger = require('./rust-commander/logger');
 const path = require('path');
 const RustCommander = require('./rust-commander/RustCommander');
@@ -9,7 +8,6 @@ if (!process.argv[2]) {
   process.exit(1);
 }
 
-// Global scope consts/vars
 
 const configName = process.argv[2];
 const configDir = path.join(__dirname, '/config/');
