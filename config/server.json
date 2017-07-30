@@ -1,64 +1,64 @@
 {
-	"rust_server": {
-		"host": "rust-server-ip-or-hostname",
-		"webrcon_port": 5678,
-		"webrcon_password": "your-rcon-password",
-		"reconnect_interval": 5
-	},
-	"slack": {
-		"bot": {
-			"api_token": "slack-bot-api-token",
-			"name": "RustCommander"
-		},
-		"reconnect_interval": 5,
-		"display_nickname": true,
+  "rust_server": {
+    "host": "rust-server-ip-or-hostname",
+    "webrcon_port": 5678,
+    "webrcon_password": "your-rcon-password",
+    "reconnect_interval": 5
+  },
+  "slack": {
+    "bot": {
+      "api_token": "slack-bot-api-token",
+      "name": "RustCommander"
+    },
+    "reconnect_interval": 5,
+    "display_nickname": true,
     "display_source": true,
-		"interactions": [
-			{
-				"channel": "#rustserver_swearing",
-				"type": "chat-notification",
-				"filters": ["noob", "damn it", "god damn", "ass"]
-			},
-			{
-				"channel": "#rustserver_admin",
-				"type": "chat-notification",
-				"filters": ["admin", "cheater"]
-			},
-			{
-				"channel": "#rustserver_chat",
-				"type": "chat"
-			},
-			{
-				"channel": "#rustserver_console",
-				"type": "console"
-		  }
-		]
-	},
-	"discord": {
-		"bot": {
-			"api_token": "discord-bot-api-token"
-		},
-		"display_nickname": true,
+    "interactions": [
+      {
+        "channel": "#rustserver_swearing",
+        "type": "chat-notification",
+        "filters": ["noob", "damn it", "god damn", "ass"]
+      },
+      {
+        "channel": "#rustserver_admin",
+        "type": "chat-notification",
+        "filters": ["admin", "cheater"]
+      },
+      {
+        "channel": "#rustserver_chat",
+        "type": "chat"
+      },
+      {
+        "channel": "#rustserver_console",
+        "type": "console"
+      }
+    ]
+  },
+  "discord": {
+    "bot": {
+      "api_token": "discord-bot-api-token"
+    },
+    "display_nickname": true,
     "display_source": true,
-		"interactions": [
-			{
-				"channel": "#rustserver_swearing",
-				"type": "chat-notification",
-				"filters": ["noob", "damn it", "god damn", "ass"]
-			},
-			{
-				"channel": "#rustserver_admin",
-				"type": "chat-notification",
-				"filters": ["admin", "cheater"]
-			},
-			{
-				"channel": "#rustserver_chat",
-				"type": "chat"
-			},
-			{
-				"channel": "#rustserver_console",
-				"type": "console"
-		  }
-		]
-	}
+    "interactions": [
+      {
+        "channel": "#rustserver_swearing",
+        "type": "chat-notification",
+        "filters": ["noob", "damn it", "god damn", "ass"]
+      },
+      {
+        "channel": "#rustserver_admin",
+        "type": "chat-notification",
+        "filters": ["admin", "cheater"]
+      },
+      {
+        "channel": "#rustserver_chat",
+        "type": "chat"
+      },
+      {
+        "channel": "#rustserver_console",
+        "type": "console"
+      }
+    ]
+  }
 }
