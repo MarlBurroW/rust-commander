@@ -158,7 +158,7 @@ The above command is good for create your configuration and test/debug it, but l
 
 `$ npm install -g forever`
 
-`$ forever start RC.js `confname`
+`$ forever start RC.js confname`
 
 ## Plugins
 This feature is in progress.
