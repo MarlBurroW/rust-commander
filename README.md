@@ -163,3 +163,7 @@ The above command is good for create your configuration and test/debug it, but l
 ## Plugins
 This feature is in progress.
 I'm working on a powerful and simple plugin system to allow you to create awesome plugins. I'm sure there are a lot of cool things to do with RCON.
+
+
+By MarlburroW
+Contributors: Marzu
