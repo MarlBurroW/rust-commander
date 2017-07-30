@@ -101,6 +101,7 @@ class ConfigReader {
           filters: Joi.when('type', {is: 'chat-notification', then: Joi.array().required().items(Joi.string()) })
         })
       }),
+      plugins: Joi.array().optional().items(Joi.string())
     });
 
     Joi.validate(config, schema, (err, value) => {

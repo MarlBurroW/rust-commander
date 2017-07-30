@@ -17,6 +17,8 @@ class RustCommander extends EventEmitter {
     this.configReader = null;
     this.pluginLoader = null;
 
+    this.playerCommands = {};
+
     this.configFilePath = configFilePath;
     this.pluginDirPath = pluginDirPath;
   }
@@ -24,7 +26,7 @@ class RustCommander extends EventEmitter {
   run() {
     const that = this;
     that.configReader = new ConfigReader();
-    that.pluginLoader = new PluginLoader(that.pluginDirPath, that);
+
 
     // Splash screen
     Logger.splashScreen();
@@ -32,24 +34,30 @@ class RustCommander extends EventEmitter {
     // Reads the configuration file
     that.configReader.read(that.configFilePath).then((config) => {
       that.config = config;
-      that.rcon = new Rcon(that.config.rust_server);
-      that.rcon.init();
 
-      // If slack is defined in the config file, create interractions
-      if (that.config.slack) {
-        that.slack = new SlackConnector(that.config.slack, that.rcon);
-        that.slack.init();
-      }
+      that.pluginLoader = new PluginLoader(that.pluginDirPath, that);
 
-      // If discord is defined in the config file, create interractions
-      if (that.config.discord) {
-        that.discord = new DiscordConnector(that.config.discord, that.rcon);
-        that.discord.init();
-      }
+      that.pluginLoader.loadPlugins().then(() => {
 
-      // TODO: Plugin loader
+        that.rcon = new Rcon(that.config.rust_server);
+        that.rcon.init();
 
-      // that.pluginLoader.loadPlugins();
+        // If slack is defined in the config file, create interractions
+        if (that.config.slack) {
+          that.slack = new SlackConnector(that.config.slack, that.rcon);
+          that.slack.init();
+        }
+
+        // If discord is defined in the config file, create interractions
+        if (that.config.discord) {
+          that.discord = new DiscordConnector(that.config.discord, that.rcon);
+          that.discord.init();
+        }
+      }).catch((err) => {
+        Logger.error(err);
+      });
+
+
 
     }).catch((e) => {
 
@@ -57,6 +65,11 @@ class RustCommander extends EventEmitter {
       process.exit(1);
 
     });
+  }
+
+  registerPlayerCommand(command, description, callback) {
+    const that = this;
+    that.playerCommands[command] = { description, callback };
   }
 }
 

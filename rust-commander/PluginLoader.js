@@ -2,7 +2,6 @@ const EventEmitter = require('events').EventEmitter;
 const SystemJS = require('systemjs');
 const Logger = require('./logger');
 const path = require('path');
-const glob = require("glob")
 
 class PluginLoader extends EventEmitter {
   constructor(pluginDirPath, rustCommander) {
@@ -14,18 +13,21 @@ class PluginLoader extends EventEmitter {
   loadPlugins() {
     const that = this;
     Logger.title('PLUGINS');
+    Logger.log(`Load plugins defined in the configuration file`);
 
-    glob(path.join(this.pluginDirPath, '*', 'plugin.js'), {absolute: true}, (er, files) => {
-      files.forEach((pluginPath) => {
+    let loadPromises = [];
 
-        SystemJS.import('file:///' + pluginPath).then((plugin) => {
-          Logger.success(`[PLUGIN LOADED] ${plugin.title} - ${plugin.description}`);
+    if (that.rustCommander.config.plugins) {
+      that.rustCommander.config.plugins.forEach((pluginID) => {
+        loadPromises.push(SystemJS.import(path.join(that.pluginDirPath, pluginID, 'plugin.js')).then((plugin) => {
+          Logger.success(`[${plugin.title}] ${plugin.description}`);
           plugin.run(that.rustCommander);
-        }).catch((err) => {
-          Logger.error(err);
-        });
+        }));
       });
-    });
+    }
+
+    return Promise.all(loadPromises);
+
   }
 }
 
