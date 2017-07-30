@@ -112,7 +112,7 @@ The default confugration file is located here: `config/server.json`. You can cre
 
 
 ### Configuration details
-The RCON configuration is the minimal configuration requirement to run RustCommander. You can remove the Slack or the Discord configuration if you don't want to use ono of them.
+The RCON configuration is the minimal configuration requirement to run RustCommander. You can remove the Slack or the Discord configuration if you don't want to use one of them.
 #### RCON
 
 
@@ -166,4 +166,5 @@ I'm working on a powerful and simple plugin system to allow you to create awesom
 
 
 By MarlburroW
+
 Contributors: Marzu
