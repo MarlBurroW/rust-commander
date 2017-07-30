@@ -1,6 +1,5 @@
 
-# RUST COMMANDER
-
+![img](http://i.imgur.com/jrV4gPp.jpg)
 RustCommander is an admin tool allowing to control and monitor your Rust Vanilla server from Slack/Discord.
 
 Note: You don't need Oxide installed on your server to make RustCommander works.
