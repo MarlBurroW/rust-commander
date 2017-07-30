@@ -157,6 +157,7 @@ Note: `confname` is a name of a configuration file located in the `config/` dire
 The above command is good for create your configuration and test/debug it, but later you'll probably want to launch RustCommander as a daemon process. In this case you can use [Forever](https://github.com/foreverjs/forever) to run the process as daemon:
 
 `$ npm install -g forever`
+
 `$ forever start RC.js `confname`
 
 ## Plugins
