@@ -32,9 +32,9 @@ Install node modules
 
 Run RustCommander
 
-`$ node RC.js <confname>`
+`$ node RC.js confname`
 
-\<confname\> is the name of a configuration file in the `config/` folder without ".json"
+`confname` is the name of a configuration file in the `config/` folder without ".json"
 
 Of course this last command will not works out of the box, you need to configure some little things before, see the next section.
 
@@ -151,13 +151,13 @@ Interactions are how RustCommander interact with your slack/discord channels and
 ### Run a RustCommander process
 You can run a RustCommander process with this command:
 
-`$ node RC.js <confname>`
+`$ node RC.js confname`
 
-Note: \<confname\> is a name of a configuration file located in the `config/` directory without the `".json"`
+Note: `confname` is a name of a configuration file located in the `config/` directory without the `".json"`
 The above command is good for create your configuration and test/debug it, but later you'll probably want to launch RustCommander as a daemon process. In this case you can use [Forever](https://github.com/foreverjs/forever) to run the process as daemon:
 
 `$ npm install -g forever`
-`$ forever start RC.js <confname>`
+`$ forever start RC.js `confname`
 
 ## Plugins
 This feature is in progress.
