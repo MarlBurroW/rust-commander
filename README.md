@@ -12,7 +12,7 @@ Note: You don't need Oxide installed on your server to make RustCommander works.
 - Interact with your Rust server console from Slack/Discord.
 - Simple configuration from a JSON file (can create one conf file per Rust server).
 - Auto-reconnect when the RCON/Slack/Discord connection is lost.
-- Plugin system offering a developer API to add more features (in progress).
+- Plugin system offering a developer API to add more features (like commands for your players ex: !players or !wipe).
 
 ## Prerequistes
 
@@ -160,5 +160,5 @@ The above command is good for create your configuration and test/debug it, but l
 `$ forever start RC.js <confname>`
 
 ## Plugins
- 
+This feature is in progress.
 I'm working on a powerful and simple plugin system to allow you to create awesome plugins. I'm sure there are a lot of cool things to do with RCON.
