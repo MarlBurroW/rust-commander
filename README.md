@@ -1,7 +1,9 @@
 
 # RUST COMMANDER
 
-RustCommander is an admin tool allowing to control and monitor your Rust server from Slack/Discord.
+RustCommander is an admin tool allowing to control and monitor your Rust Vanilla server from Slack/Discord.
+
+Note: You don't need Oxide installed on your server to make RustCommander works.
 
 ## Features
 
@@ -16,7 +18,7 @@ RustCommander is an admin tool allowing to control and monitor your Rust server 
 ## Prerequistes
 
 - Nodejs (v7.3.0 or higher) and NPM must be installed on the host machine.
-- WebRCON must be enabled on your Rust server, you can enable it by adding `+web.rcon true`, you can also specify the rcon port like this  `+rcon.port <port>`.
+- WebRCON must be enabled on your Rust server, you can enable it by adding **`+web.rcon true`**, you can also specify the rcon port and password like this  **`+rcon.port <port>`**  **`+rcon.password <port>`**.
 
 ## Installation
 
@@ -157,4 +159,6 @@ The above command is good for create your configuration and test/debug it, but l
 `$ npm install -g forever`
 `$ forever start RC.js <confname>`
 
-
+## Plugins
+ 
+I'm working on a powerful and simple plugin system to allow you to create awesome plugins. I'm sure there are a lot of cool things to do with RCON.
