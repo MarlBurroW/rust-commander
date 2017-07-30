@@ -17,7 +17,7 @@ Note: You don't need Oxide installed on your server to make RustCommander works.
 ## Prerequistes
 
 - Nodejs (v7.3.0 or higher) and NPM must be installed on the host machine.
-- WebRCON must be enabled on your Rust server, you can enable it by adding **`+web.rcon true`**, you can also specify the rcon port and password like this  **`+rcon.port <port>`**  **`+rcon.password <port>`**.
+- WebRCON must be enabled on your Rust server, you can enable it by adding **`+web.rcon true`**, you can also specify the rcon port and password like this  **`+rcon.port <port>`**  **`+rcon.password <password>`**.
 - Of course you need to register a bot on Slack and/or Discord.
 
 ## Installation
