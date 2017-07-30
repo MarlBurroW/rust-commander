@@ -110,8 +110,9 @@ The default confugration file is located here: `config/server.json`. You can cre
 
 
 ### Configuration details
-
+The RCON configuration is the minimal configuration requirement to run RustCommander, but you can remove the Slack or the Discord configuration if you don't want to use on of them.
 #### RCON
+
 
 - `host`: The IP Address or the hostname of your Rust Server.
 - `webrcon_port`: The WebRCON port of your Rust server (defined with the **+rcon_port**).
@@ -120,24 +121,37 @@ The default confugration file is located here: `config/server.json`. You can cre
 
 #### SLACK
 
-- `reconnect_interval`: Exactly the same as RCON but for the Slack connection.
-- `bot.api_token`: The API token of your SlackBot (you need to add a **Bots** integration in your app directory)
-- `bot.name`: The display name of the bot (This overrides the name defined from slack)
-- `interactions`: Interactions are how RustCommander interact with your slack/discord channels and your Rust server. You can create interactions as many as you need. There are some default interactions defined in the default configuration files, but be free to remove it.
- - type: The type of the interaction
- - channel: The targeted channel.
+* `reconnect_interval`: Exactly the same as RCON but for the Slack connection.
+* `bot`
+  * `api_token`: The API token of your SlackBot (you need to add a **Bots** integration in your app directory)
+  * `name`: The display name of the bot (This overrides the name defined from slack)
+* `interactions`: Interactions are how RustCommander interact with your slack/discord channels and your Rust server. You can create as many interactions as you need. There are some default interactions defined in the default configuration files, but be free to remove it and replace with your owns. All interactions types are described later.
+  * `type`: The type of the interaction
+  * `channel`: The targeted Slack channel.
 
-There are currently 4 types of interactions:
+**IMPORTANT: You need to manualy add your Slack bot in all targeted channels**
+#### DISCORD
+The Discord configuration is quiet the same as the Slack Configuration.
 
-- *chat* : You see the general chat in the targeted channel
- 
+* `bot`
+  * `api_token`: The API token of your Discord bot. Visit [this link](https://discordapp.com/developers) to create your bot.
+* `interactions`: Interactions works exactly the same as for SLack interactions.
+
+**IMPORTANT**: You need to manualy add your Discord bot in all targeted channels**
+### Interactions
+Interactions are how RustCommander interact with your slack/discord channels and your Rust server
+* `"chat"` : You see the general chat of your rust server in the targeted channel and you can send message as "SERVER".
+* `"console"` : You can send rust command directly from the targeted Slack channel and see the response.
+* `"log"` : You see ALL the rust server console output in the targeted Slack channel, it's VERY verbose. There is no "log" interaction defined in the default configuration because most of users will not want to use it.
+* `"chat-notification"` : You see only chat messages matching words defined in the `"filters"` property. This is a simple array of string. Unlike the `"chat"` type, you can't send message from the targeted channel. This type of interaction is useful if you want to be notified when a player says bad words or some requiring your intervention.
+
+
 ### Run a RustCommander process
 You can run a RustCommander process with this command:
 
 `$ node RC.js <confname>`
 
-Note: \<confname\> is a name of a configuration file located in the `config/` directory without `.json`
-
+Note: \<confname\> is a name of a configuration file located in the `config/` directory without the `".json"`
 The above command is good for create your configuration and test/debug it, but later you'll probably want to launch RustCommander as a daemon process. In this case you can use [Forever](https://github.com/foreverjs/forever) to run the process as daemon:
 
 `$ npm install -g forever`
