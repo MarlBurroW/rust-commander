@@ -9,6 +9,8 @@ class SlackConnector extends EventEmitter {
     this.rcon = rcon;
     this.bot = null;
     this.slackChannels = {};
+    this.slackUsers = {};
+
   }
 
   init() {
@@ -43,17 +45,25 @@ class SlackConnector extends EventEmitter {
       that.bot.getChannels().then((data) => {
         that.slackChannels = {};
         const channels = data.channels;
-        for (let i = 0; i < channels.length; i += 1) {
-          const channel = channels[i];
+        channels.forEach((channel) => {
           that.slackChannels[channel.id] = channel.name;
-        }
+        })
+      });
+
+       // Get all users informations to fill the slackUsers object
+      that.bot.getUsers().then((data) => {
+        that.slackUsers = {};
+        const users = data.members;
+        users.forEach((user) => {
+          that.slackUsers[user.id] = user.name;
+        });
       });
 
       // Emit a custom event containing the channel name when a slack message is sent
       that.bot.on('message', (data) => {
         if (
           data.type === 'message' &&
-          data.subtype !== 'bot_message' &&
+          data.subtype === undefined &&
           that.slackChannels
         ) {
           that.emit(`chat-message#${that.slackChannels[data.channel]}`, data);
@@ -91,6 +101,23 @@ class SlackConnector extends EventEmitter {
     that.bot.postMessageToChannel(channel, message);
   }
 
+  formatMessage(message) {
+    const that = this;
+    let outputMessage = '';
+
+    if(that.config.display_nickname && that.config.display_source) {
+      outputMessage = `(${that.slackUsers[message.user]} from Slack) ${message.text}`;
+    }else if(that.config.display_nickname) {
+      outputMessage = `(${that.slackUsers[message.user]}) ${message.text}`;
+    } else if(that.config.display_source) {
+      outputMessage = `(From Slack) ${message.text}`;
+    } else {
+      outputMessage = `${message.text}`;
+    }
+
+    return outputMessage;
+  }
+
 
   createChannelInteraction(interactionConfig) {
     const that = this;
@@ -118,8 +145,8 @@ class SlackConnector extends EventEmitter {
         });
 
         // When a slack message is sent, foward it to the rust server
-        that.on(`chat-message#${interactionConfig.channel}`, (data) => {
-          that.rcon.sendMessage(data.text);
+        that.on(`chat-message#${interactionConfig.channel}`, (message) => {
+          that.rcon.sendMessage(that.formatMessage(message));
         });
 
         break;

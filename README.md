@@ -52,11 +52,13 @@ Below the default configuration of RustCommander, don't be afraid, it's much sim
 		"reconnect_interval": 5
 	},
 	"slack": {
-		"reconnect_interval": 5,
 		"bot": {
 			"api_token": "slack-bot-api-token",
 			"name": "RustCommander"
 		},
+		"reconnect_interval": 5,
+		"display_nickname": true,
+    "display_source": true,
 		"interactions": [
 			{
 				"channel": "#rustserver_swearing",
@@ -82,6 +84,8 @@ Below the default configuration of RustCommander, don't be afraid, it's much sim
 		"bot": {
 			"api_token": "discord-bot-api-token"
 		},
+		"display_nickname": true,
+    "display_source": true,
 		"interactions": [
 			{
 				"channel": "#rustserver_swearing",
@@ -105,6 +109,7 @@ Below the default configuration of RustCommander, don't be afraid, it's much sim
 	}
 }
 
+
 ```
 
 The default confugration file is located here: `config/server.json`. You can create files like this as many as you have rust servers.
@@ -119,7 +124,7 @@ The RCON configuration is the minimal configuration requirement to run RustComma
 - `host`: The IP Address or the hostname of your Rust Server.
 - `webrcon_port`: The WebRCON port of your Rust server (defined with the **+rcon_port**).
 - `webrcon_password`: The WebRCON password of your Rust server (defined with the **+rcon_password**)
-- `reconnect_interval`: Sometime the RCON connection may be lost (when a server-side update occurs for example). This property define the time interval (in seconds) between each reconnection tries. 
+- `reconnect_interval`: Sometime the RCON connection may be lost (when a server-side update occurs for example). This property define the time interval (in seconds) between each reconnection tries.
 
 #### SLACK
 
@@ -127,6 +132,8 @@ The RCON configuration is the minimal configuration requirement to run RustComma
 * `bot`
   * `api_token`: The API token of your SlackBot (you need to add a **Bots** integration in your app directory)
   * `name`: The display name of the bot (This overrides the name defined from slack)
+* `display_nickname`: Display your Slack nickname when you send a message to your Rust server
+* `display_source`: Display "From Slack" when you send a message to your Rust server
 * `interactions`: Interactions are how RustCommander interact with your slack/discord channels and your Rust server. You can create as many interactions as you need. There are some default interactions defined in the default configuration files, but be free to remove it and replace with your owns. All interactions types are described later.
   * `type`: The type of the interaction
   * `channel`: The targeted Slack channel.
@@ -137,6 +144,8 @@ The Discord configuration is quiet the same as the Slack Configuration.
 
 * `bot`
   * `api_token`: The API token of your Discord bot. Visit [this link](https://discordapp.com/developers) to create your bot.
+* `display_nickname`: Display your Discord nickname when you send a message to your Rust server
+* `display_source`: Display "From Discord" when you send a message to your Rust server
 * `interactions`: Interactions works exactly the same as for SLack interactions.
 
 **IMPORTANT**: You need to manualy add your Discord bot in all targeted channels**

@@ -6,11 +6,13 @@
 		"reconnect_interval": 5
 	},
 	"slack": {
-		"reconnect_interval": 5,
 		"bot": {
 			"api_token": "slack-bot-api-token",
 			"name": "RustCommander"
 		},
+		"reconnect_interval": 5,
+		"display_nickname": true,
+    "display_source": true,
 		"interactions": [
 			{
 				"channel": "#rustserver_swearing",
@@ -36,6 +38,8 @@
 		"bot": {
 			"api_token": "discord-bot-api-token"
 		},
+		"display_nickname": true,
+    "display_source": true,
 		"interactions": [
 			{
 				"channel": "#rustserver_swearing",

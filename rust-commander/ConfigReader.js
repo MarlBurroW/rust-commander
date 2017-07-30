@@ -77,6 +77,8 @@ class ConfigReader {
       }),
       slack: Joi.object().optional().keys({
         reconnect_interval: Joi.number().required(),
+        display_nickname: Joi.bool().optional(),
+        display_source: Joi.bool().optional(),
         bot: Joi.object().required().keys({
           api_token: Joi.string().required(),
           name: Joi.string().required()
@@ -88,6 +90,8 @@ class ConfigReader {
         })
       }),
       discord: Joi.object().optional().keys({
+        display_nickname: Joi.bool().optional(),
+        display_source: Joi.bool().optional(),
         bot: Joi.object().required().keys({
           api_token: Joi.string().required()
         }),

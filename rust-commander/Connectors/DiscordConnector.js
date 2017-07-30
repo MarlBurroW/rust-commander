@@ -70,6 +70,23 @@ class DiscordConnector extends EventEmitter {
     }
   }
 
+  formatMessage(message) {
+    const that = this;
+    let outputMessage = '';
+
+    if(that.config.display_nickname && that.config.display_source) {
+      outputMessage = `(${message.author.username} from Discord) ${message.content}`;
+    }else if(that.config.display_nickname) {
+      outputMessage = `(${message.author.username}) ${message.content}`;
+    } else if(that.config.display_source) {
+      outputMessage = `(From Discord) ${message.content}`;
+    } else {
+      outputMessage = `${message.content}`;
+    }
+
+    return outputMessage;
+  }
+
   createChannelInteraction(interactionConfig) {
     const that = this;
 
@@ -95,7 +112,7 @@ class DiscordConnector extends EventEmitter {
         });
 
         that.on(`chat-message#${interactionConfig.channel}`, (message) => {
-          that.rcon.sendMessage(message.content);
+          that.rcon.sendMessage(that.formatMessage(message));
         });
 
         break;
