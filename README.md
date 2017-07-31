@@ -176,4 +176,4 @@ I'm working on a powerful and simple plugin system to allow you to create awesom
 
 By MarlburroW
 
-Contributors: Marzu
+Contributors: [Marzu](https://github.com/mturquetil)
