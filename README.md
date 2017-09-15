@@ -24,7 +24,7 @@ Note: You don't need Oxide installed on your server to make RustCommander works.
 
 Clone the repository
 
-`$ git clone git@github.com:MarlBurroW/rust-commander.git && cd rust-commander`
+`$ git clone http://github.com/MarlBurroW/rust-commander && cd rust-commander`
 
 Install node modules
 
