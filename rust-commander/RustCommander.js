@@ -1,4 +1,4 @@
-const EventEmitter = require('events').EventEmitter;
+
 
 const Logger = require('./logger');
 const Rcon = require('./Rcon');
@@ -6,6 +6,7 @@ const SlackConnector = require('./Connectors/SlackConnector');
 const DiscordConnector = require('./Connectors/DiscordConnector');
 const ConfigReader = require('./ConfigReader');
 const PluginLoader = require('./PluginLoader');
+const EventEmitter = require('events').EventEmitter;
 
 class RustCommander extends EventEmitter {
   constructor(configFilePath, pluginDirPath) {
@@ -37,27 +38,34 @@ class RustCommander extends EventEmitter {
 
       that.pluginLoader = new PluginLoader(that.pluginDirPath, that);
 
+
+      that.rcon = new Rcon(that.config.rust_server);
+      that.rcon.init();
+
+      that.rcon.on('ready', () => {
+        that.emit('rcon-ready');
+      })
+
+
+      // If slack is defined in the config file, create interractions
+      if (that.config.slack) {
+        that.slack = new SlackConnector(that.config.slack, that.rcon);
+        that.slack.init();
+      }
+
+      // If discord is defined in the config file, create interractions
+      if (that.config.discord) {
+        that.discord = new DiscordConnector(that.config.discord, that.rcon);
+        that.discord.init();
+      }
+
       that.pluginLoader.loadPlugins().then(() => {
-
-        that.rcon = new Rcon(that.config.rust_server);
-        that.rcon.init();
-
-        // If slack is defined in the config file, create interractions
-        if (that.config.slack) {
-          that.slack = new SlackConnector(that.config.slack, that.rcon);
-          that.slack.init();
-        }
-
-        // If discord is defined in the config file, create interractions
-        if (that.config.discord) {
-          that.discord = new DiscordConnector(that.config.discord, that.rcon);
-          that.discord.init();
-        }
+        that.initPlayerCommands();
       }).catch((err) => {
         Logger.error(err);
       });
 
-
+      Logger.title(`LOGS`);
 
     }).catch((e) => {
 
@@ -71,6 +79,12 @@ class RustCommander extends EventEmitter {
     const that = this;
     that.playerCommands[command] = { description, callback };
   }
+
+  initPlayerCommands() {
+    const that = this;
+
+  }
+
 }
 
 module.exports = RustCommander;

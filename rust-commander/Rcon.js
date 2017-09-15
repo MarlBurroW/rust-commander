@@ -1,6 +1,7 @@
 const WebSocket = require('ws');
 const EventEmitter = require('events').EventEmitter;
 const Logger = require('./logger');
+const rconCommands = require('./rconCommands')
 
 const RCON_IDENTIFIER_CONSOLE_RANGE_MIN = 1337000000;
 const RCON_IDENTIFIER_CONSOLE_RANGE_MAX = 1337999999;
@@ -10,7 +11,9 @@ class Rcon extends EventEmitter {
     super();
     this.config = config;
     this.socket = null;
+    this.commands = rconCommands(this);
   }
+
 
   init() {
     const that = this;
@@ -39,13 +42,20 @@ class Rcon extends EventEmitter {
     });
 
     that.socket.on('open', (e) => {
+      that.emit('ready');
       Logger.success('RCON: Connected');
     });
 
     that.socket.on('message', (serializedData) => {
       const data = JSON.parse(serializedData);
 
-      if (data.Type === 'Chat') {
+      if (/\[Better Chat\]/.test(data.Message)) {
+        const message = {
+          Message: data.Message.replace(/\[Better Chat\]/, ''),
+          Username: '[BetterChat]',
+        };
+        that.emit('chat-message', message);
+      } else if (data.Type === 'Chat') {
         const message = JSON.parse(data.Message);
         that.emit('chat-message', message);
       } else if (data.Type === 'Generic'
@@ -125,6 +135,7 @@ class Rcon extends EventEmitter {
     const max = RCON_IDENTIFIER_CONSOLE_RANGE_MAX;
     return Math.floor(Math.random() * (max - min)) + min;
   }
+
 }
 
 module.exports = Rcon;
