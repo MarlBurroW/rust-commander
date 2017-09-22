@@ -45,13 +45,7 @@ class Rcon extends EventEmitter {
     that.socket.on('message', (serializedData) => {
       const data = JSON.parse(serializedData);
 
-      if (/\[Better Chat\]/.test(data.Message)) {
-        const message = {
-          Message: data.Message.replace(/\[Better Chat\]/, ''),
-          Username: '[BetterChat]',
-        };
-        that.emit('chat-message', message);
-      } else if (data.Type === 'Chat') {
+      if (data.Type === 'Chat') {
 
         const message = JSON.parse(data.Message);
         that.emit('chat-message', message);
