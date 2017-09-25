@@ -3,12 +3,13 @@ const Logger = require('../logger');
 const Discord = require('discord.js');
 
 class DiscordConnector extends EventEmitter {
-  constructor(config, rcon) {
+  constructor(config, rcon, commandManager) {
     super();
     this.config = config;
     this.rcon = rcon;
     this.bot = null;
     this.discordChannels = {};
+    this.commandManager = commandManager;
   }
 
   init() {
@@ -24,25 +25,30 @@ class DiscordConnector extends EventEmitter {
 
     that.bot.on('disconnect', (error) => {
       Logger.error(`DISCORD: ${error.reason}`);
+      that.emit('disconnect', error.reason);
     });
 
     that.bot.on('error', (error) => {
+      that.emit('error', error);
       Logger.error(`DISCORD: ${error}`);
     });
 
     that.bot.on('ready', (e) => {
       Logger.success('DISCORD: Connected');
-
+      that.emit('connect');
       that.bot.channels.array().forEach((channel) => {
         that.discordChannels[channel.name] = channel;
       });
     });
 
     that.bot.on('resume', () => {
+      that.emit('connect');
+      that.emit('reconnect');
       Logger.success('DISCORD: Connected');
     });
 
     that.bot.on('reconnecting', () => {
+      that.emit('reconnecting');
       Logger.log(`DISCORD: Reconnecting...`);
     });
 
@@ -87,6 +93,24 @@ class DiscordConnector extends EventEmitter {
     return outputMessage;
   }
 
+
+  getInteractions() {
+    const that = this;
+    return that.config.interactions;
+  }
+
+  getChannels() {
+    const that = this;
+    return that.getInteractions().map((interaction) => interaction.channel);
+  }
+
+  postMessageToAllChannels(message) {
+    const that = this;
+    that.getChannels().forEach((channel) => {
+      that.postMessageToChannel(channel, message);
+    })
+  }
+
   createChannelInteraction(interactionConfig) {
     const that = this;
 
@@ -122,12 +146,17 @@ class DiscordConnector extends EventEmitter {
         });
         break;
       case 'console':
-        that.on(`chat-message#${interactionConfig.channel.replace('#', '')}`, (message) => {
+        that.on(`chat-message#${interactionConfig.channel}`, (message) => {
           that.rcon.sendCommand(message.content).then((commandResponse) => {
              that.postMessageToChannel(interactionConfig.channel, commandResponse);
           });
         });
-
+      case 'rust-commander':
+        that.on(`chat-message#${interactionConfig.channel}`, (message) => {
+          that.commandManager.parseAndExecute(message).then((commandResponse) => {
+            that.postMessageToChannel(interactionConfig.channel, commandResponse);
+          });
+        });
         break;
       default:
         break;

@@ -3,14 +3,15 @@ const EventEmitter = require('events').EventEmitter;
 const Logger = require('../logger');
 
 class SlackConnector extends EventEmitter {
-  constructor(config, rcon) {
+  constructor(config, rcon, commandManager) {
     super();
     this.config = config;
     this.rcon = rcon;
     this.bot = null;
     this.slackChannels = {};
     this.slackUsers = {};
-
+    this.firstConnect = true;
+    this.commandManager = commandManager;
   }
 
   init() {
@@ -32,11 +33,13 @@ class SlackConnector extends EventEmitter {
       });
 
       that.bot.on('error', (error) => {
+        that.emit('error', error);
         Logger.error(`SLACK: Error: ${error}`);
         that.reconnect();
       });
 
       that.bot.on('close', (error) => {
+        that.emit('disconnect', error);
         Logger.error('SLACK: disconnected');
         that.reconnect();
       });
@@ -76,6 +79,11 @@ class SlackConnector extends EventEmitter {
       });
 
       that.bot.on('open', () => {
+        that.emit('connect');
+        if(!that.firstConnect) {
+          that.emit('reconnect');
+        }
+        that.firstConnect = false;
         Logger.success('SLACK: Connected');
       });
     }
@@ -90,6 +98,7 @@ class SlackConnector extends EventEmitter {
     const that = this;
     Logger.log(`SLACK: Trying to reconnect in ${that.config.reconnect_interval} seconds`);
     setTimeout(() => {
+      that.emit('reconnecting');
       Logger.log('SLACK: Reconnecting...');
       that.bot.login();
     }, that.config.reconnect_interval * 1000);
@@ -118,6 +127,64 @@ class SlackConnector extends EventEmitter {
     return outputMessage;
   }
 
+  getInteractions() {
+    const that = this;
+    return that.config.interactions;
+  }
+
+  getChannels() {
+    const that = this;
+    return that.getInteractions().map((interaction) => interaction.channel);
+  }
+
+  postMessageToAllChannels(message) {
+    const that = this;
+    that.getChannels().forEach((channel) => {
+      that.postMessageToChannel(channel, message);
+    })
+  }
+
+  parseCommand(message) {
+
+    let commandData = false;
+
+    let commandRegex = /^!([a-z0-9\-]+)(?:\s+)([a-z0-9\-]+)(?:(?:\s+)(.+)?)?/;
+
+    if (commandRegex.test(message.text)) {
+      let parts = message.text.match(commandRegex);
+      let namespace = parts[1];
+      let command = parts[2];
+      let params = parts[3];
+
+      if(params) {
+        let paramsRegex = /(?:"(?:[^"\\]+|\\(?:\\\\)*.)*"|'(?:[^'\\]+|\\(?:\\\\)*.)*')|([0-9a-zA-Z-]+)/g;
+        params = params.match(paramsRegex);
+      } else {
+        params = [];
+      }
+
+      let finalParams = [];
+
+      params.forEach((param) => {
+        param = param.replace(/^\"|\"$/g, '');
+
+        if(parseInt(param)) {
+          param = parseInt(param);
+        }
+
+        finalParams.push(param);
+      });
+
+      commandData = {
+        namespace: namespace,
+        command: command,
+        args: finalParams,
+      }
+
+    }
+
+    return commandData;
+  }
 
   createChannelInteraction(interactionConfig) {
     const that = this;
@@ -166,6 +233,21 @@ class SlackConnector extends EventEmitter {
           that.rcon.sendCommand(data.text).then((commandResponse) => {
             that.postMessageToChannel(interactionConfig.channel, commandResponse);
           });
+        });
+        break;
+      case 'rust-commander':
+        that.on(`chat-message#${interactionConfig.channel}`, (message) => {
+          let commandData = that.parseCommand(message);
+          if(commandData === false) {
+             that.postMessageToChannel(interactionConfig.channel, 'wrong command syntax');
+             return;
+          }
+          that.commandManager.dispatchCommand(commandData).then((response) => {
+            that.postMessageToChannel(interactionConfig.channel, response);
+          }).catch((error) => {
+            that.postMessageToChannel(interactionConfig.channel, error);
+          });
+
         });
         break;
       default:

@@ -4,6 +4,10 @@ const Logger = require('./logger');
 const path = require('path');
 const Joi = require('joi');
 
+const PluginDataManager = require('./PluginDataManager');
+const PluginHelper = require('./PluginHelper');
+const PluginCommandManager = require('./PluginCommandManager');
+
 class PluginLoader extends EventEmitter {
   constructor(pluginDirPath, rustCommander) {
     super();
@@ -20,8 +24,10 @@ class PluginLoader extends EventEmitter {
 
     if (that.rustCommander.config.plugins) {
       that.rustCommander.config.plugins.forEach((pluginID) => {
-        let pluginPath = path.join(that.pluginDirPath, pluginID, 'plugin.js')
+        let pluginPath = path.join(that.pluginDirPath, `${pluginID}.js`)
         let plugin = null;
+
+
         try {
           plugin = require(pluginPath);
         } catch (err) {
@@ -31,6 +37,11 @@ class PluginLoader extends EventEmitter {
 
         let {pluginErrors} = that.validatePluginSchema(plugin);
 
+        if (that.rustCommander.plugins[plugin.id]) {
+          Logger.error(`[PLUGIN][${pluginID}] This plugin is already registered`);
+          return;
+        }
+
         if (pluginErrors.length > 0) {
           Logger.error(`[PLUGIN][${pluginID}] ${pluginErrors.length} error(s) found in the plugin ${pluginID}, please fix it:\n- ${ pluginErrors.join('\n- ') }`);
           // go to the next plugin
@@ -38,6 +49,9 @@ class PluginLoader extends EventEmitter {
         }
 
         let pluginConfig = that.rustCommander.config.pluginConfigs[pluginID];
+
+        // important
+        if(!pluginConfig) pluginConfig = {};
 
         let {configErrors, checkedPluginConfig} = that.validatePluginConfig(plugin, pluginConfig);
 
@@ -47,9 +61,51 @@ class PluginLoader extends EventEmitter {
           return;
         }
 
-        plugin.run(this.rustCommander, checkedPluginConfig)
+        that.rustCommander.plugins[plugin.id] = plugin;
+        that.rustCommander.pluginConfigs[plugin.id] = checkedPluginConfig;
         Logger.success(`[PLUGIN][${plugin.title}][version ${plugin.version}] ${plugin.description}`);
       });
+
+      let runablePlugins = [];
+      for (let [pluginID, plugin] of Object.entries(that.rustCommander.plugins)) {
+
+
+        let data = plugin.data || {};
+        let dataManager = new PluginDataManager(data);
+        plugin.dataManager = dataManager;
+
+        let commandManager = new PluginCommandManager(that.rustCommander.getCommandManager(), plugin.id);
+
+        let dependencies = {};
+        let canRun = true;
+        if (plugin.requiredPlugins) {
+
+          for (let index in plugin.requiredPlugins) {
+            let pluginDep = plugin.requiredPlugins[index];
+            if(!that.rustCommander.plugins[pluginDep]) {
+              Logger.error(`[PLUGIN][${plugin.id}] This plugin need the ${pluginDep} to be launched`);
+              canRun = false;
+            }
+          }
+        }
+
+        if(canRun) {
+          runablePlugins.push(plugin);
+
+          let helper = new PluginHelper(that.rustCommander, that.rustCommander.pluginConfigs[plugin.id], dataManager, commandManager);
+          plugin.helper = helper;
+        }
+      }
+
+      Logger.log(`Run loaded plugins`);
+
+      for(let pluginID in runablePlugins) {
+        let plugin = runablePlugins[pluginID];
+        plugin.run(plugin.helper);
+        Logger.success(`[PLUGIN][${plugin.title}][version ${plugin.version}] Plugin launched`);
+      }
+
+
     }
 
     return Promise.all(loadPromises);
@@ -91,6 +147,8 @@ class PluginLoader extends EventEmitter {
       title: Joi.string().required(),
       description: Joi.string().required(),
       version: Joi.string().required(),
+      requiredPlugins: Joi.array().optional().items(Joi.string()),
+      data: Joi.optional(),
       run: Joi.required(),
       checkConfig: Joi.required()
     });

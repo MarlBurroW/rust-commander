@@ -1,5 +1,3 @@
-
-
 const Logger = require('./logger');
 const Rcon = require('./Rcon');
 const SlackConnector = require('./Connectors/SlackConnector');
@@ -7,6 +5,7 @@ const DiscordConnector = require('./Connectors/DiscordConnector');
 const ConfigReader = require('./ConfigReader');
 const PluginLoader = require('./PluginLoader');
 const EventEmitter = require('events').EventEmitter;
+const CommandManager = require('./CommandManager');
 
 class RustCommander extends EventEmitter {
   constructor(configFilePath, pluginDirPath) {
@@ -17,8 +16,9 @@ class RustCommander extends EventEmitter {
     this.config = null;
     this.configReader = null;
     this.pluginLoader = null;
-
-    this.playerCommands = {};
+    this.plugins = {};
+    this.pluginConfigs = {};
+    this.commandManager = new CommandManager(this);
 
     this.configFilePath = configFilePath;
     this.pluginDirPath = pluginDirPath;
@@ -32,6 +32,9 @@ class RustCommander extends EventEmitter {
     // Splash screen
     Logger.splashScreen();
 
+
+
+
     // Reads the configuration file
     that.configReader.read(that.configFilePath).then((config) => {
       that.config = config;
@@ -42,25 +45,34 @@ class RustCommander extends EventEmitter {
       that.rcon = new Rcon(that.config.rust_server);
       that.rcon.init();
 
-      that.rcon.on('ready', () => {
-        that.emit('rcon-ready');
-      })
 
 
       // If slack is defined in the config file, create interractions
       if (that.config.slack) {
-        that.slack = new SlackConnector(that.config.slack, that.rcon);
+        that.slack = new SlackConnector(that.config.slack, that.rcon, that.commandManager);
         that.slack.init();
+        that.rcon.on('disconnect', (reason) => {
+          that.slack.postMessageToAllChannels(`RCON connection lost: ${reason})`);
+        });
+        that.rcon.on('reconnect', (reason) => {
+          that.slack.postMessageToAllChannels(`RCON reconnected`);
+        });
       }
 
       // If discord is defined in the config file, create interractions
       if (that.config.discord) {
-        that.discord = new DiscordConnector(that.config.discord, that.rcon);
+        that.discord = new DiscordConnector(that.config.discord, that.rcon, that.commandManager);
         that.discord.init();
+        that.rcon.on('disconnect', (reason) => {
+          that.discord.postMessageToAllChannels(`RCON connection lost: ${reason})`);
+        });
+        that.rcon.on('reconnect', (reason) => {
+          that.discord.postMessageToAllChannels(`RCON reconnected`);
+        });
       }
 
       that.pluginLoader.loadPlugins().then(() => {
-        that.initPlayerCommands();
+
       }).catch((err) => {
         Logger.error(err);
       });
@@ -75,15 +87,10 @@ class RustCommander extends EventEmitter {
     });
   }
 
-  registerPlayerCommand(command, description, callback) {
-    const that = this;
-    that.playerCommands[command] = { description, callback };
+  getCommandManager() {
+    return this.commandManager;
   }
 
-  initPlayerCommands() {
-    const that = this;
-
-  }
 
 }
 

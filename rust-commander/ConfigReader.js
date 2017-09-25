@@ -85,7 +85,7 @@ class ConfigReader {
         }),
         interactions: Joi.array().optional().items({
           channel: Joi.string().required(),
-          type: Joi.string().required().valid('chat-notification', 'chat', 'log', 'console'),
+          type: Joi.string().required().valid('chat-notification', 'chat', 'log', 'console', 'rust-commander'),
           filters: Joi.when('type', {is: 'chat-notification', then: Joi.array().required().items(Joi.string()) })
         })
       }),
@@ -97,7 +97,7 @@ class ConfigReader {
         }),
         interactions: Joi.array().optional().items({
           channel: Joi.string().required(),
-          type: Joi.string().required().valid('chat-notification', 'chat', 'log', 'console'),
+          type: Joi.string().required().valid('chat-notification', 'chat', 'log', 'console', 'rust-commander'),
           filters: Joi.when('type', {is: 'chat-notification', then: Joi.array().required().items(Joi.string()) })
         })
       }),

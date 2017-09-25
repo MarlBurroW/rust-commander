@@ -12,6 +12,7 @@ class Rcon extends EventEmitter {
     this.config = config;
     this.socket = null;
     this.commands = rconCommands(this);
+    this.firstConnect = true;
   }
 
 
@@ -33,29 +34,30 @@ class Rcon extends EventEmitter {
     // Events binding
 
     that.socket.on('error', (error) => {
+      that.emit('error', error);
       Logger.error(`RCON: Error: ${error}`);
     });
 
     that.socket.on('close', (e) => {
+      that.emit('disconnect');
       Logger.error('RCON: Disconnected');
       that.reconnect();
     });
 
     that.socket.on('open', (e) => {
-      that.emit('ready');
+      that.emit('connect');
+      if(!that.firstConnect) {
+        that.emit('reconnect');
+      }
+
+      that.firstConnect = false;
       Logger.success('RCON: Connected');
     });
 
     that.socket.on('message', (serializedData) => {
       const data = JSON.parse(serializedData);
 
-      if (/\[Better Chat\]/.test(data.Message)) {
-        const message = {
-          Message: data.Message.replace(/\[Better Chat\]/, ''),
-          Username: '[BetterChat]',
-        };
-        that.emit('chat-message', message);
-      } else if (data.Type === 'Chat') {
+      if (data.Type === 'Chat') {
         const message = JSON.parse(data.Message);
         that.emit('chat-message', message);
       } else if (data.Type === 'Generic'
@@ -72,7 +74,7 @@ class Rcon extends EventEmitter {
     const that = this;
     Logger.log(`RCON: Trying to reconnect in ${that.config.reconnect_interval} seconds`);
     setTimeout(() => {
-
+      that.emit('reconnecting');
       that.connect();
 
     }, that.config.reconnect_interval * 1000);
